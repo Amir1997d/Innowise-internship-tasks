@@ -1,0 +1,33 @@
+    1  pwd
+    2  ls -a
+    3  cd Desktop
+    4  cd ..
+    5  cd /
+    6  ls -l
+    7  ls -al
+    8  cd home
+    9  cd amiradmin
+   10  touch dog.txt
+   11  echo "The Avengers" > dog.txt
+   12  vim "dog.txt"
+   13  cat dog.txt
+   14  mv "dog.txt" "cat.txt"
+   15  mkdir "animals"
+   16  mv "cat.txt" "animals"
+   17  cd animals
+   18  cat ./cat.txt
+   19  cd /
+   20  cat /home/amiradmin/animals/cat.txt
+   21  cat ./home/amiradmin/animals/cat.txt
+   22  touch /home/amiradmin/animals/mouse.txt
+   23  touch /home/amiradmin/animals/lion.txt
+   24  touch /home/amiradmin/animals/fish.txt
+   25  touch /home/amiradmin/animals/elephent.txt
+   26  echo "Kung Fu Panda" > /home/amiradmin/animals/mouse.txt
+   27  ls /home/amiradmin/animals | grep "cat.txt"
+   28  find /home/amiradmin/animals -name "cat.txt"
+   29  rm /home/amiradmin/animals/lion.txt
+   30  rm -r /home/amiradmin/animals
+   31  history
+   32  history | grep "mkdir"
+   33  history > /home/amiradmin/linux-commands.txt
