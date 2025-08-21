@@ -1,0 +1,55 @@
+1.
+ # to create user Raymond and John 
+ sudo user add -m -d /home/raymond -g users -s /bin/bash raymond
+ sudo user add -m -d /home/john -g users -s /bin/bash john
+ sudo passwd john
+2.
+ # generate key for Raymond 
+ ssh-keygen -t ed25519 -C "raymond@localhost"
+ sudo mkdir -p /home/Raymond/.ssh
+
+ # here we need to paste generated key for raymond
+ sudo nano /home/Raymond/.ssh/authorized_keys
+
+ # to set configurations
+ sudo nano /etc/ssh/sshd_config
+
+ Match User raymond
+    PasswordAuthentication no
+    PubkeyAuthentication yes
+
+ Match User john
+    PasswordAuthentication yes
+    PubkeyAuthentication no
+
+ # to reset the ssh
+ sudo systemctl restart ssh
+ 
+ # to connect
+ ssh raymond@localhost
+ ssh john@localhost  
+3. 
+ sudo usermod -aG sudo raymond
+4.
+ ssh raymond@localhost
+ touch index.html
+ chmod og=r index.html
+
+ ssh john@localhost
+ nano /home/john/myscript.sh
+ chmod a+x myscript.sh
+ 
+ logout
+ 
+ ssh raymond@localhost
+ bash /home/john/myscript.sh 
+5.
+ sudo chsh -s /bin/bash john
+ sudo useradd -m user3
+6.
+ sudo usermod -aG john user3
+ sudo su - user3
+ bash /home/john/myscript.sh
+7.
+ scp /home/amiradmin/test.txt raymond@localhost:/home/raymond
+ 
