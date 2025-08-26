@@ -1,0 +1,43 @@
+2.main:
+	ping google.com -c 4 > ping_output.txt
+3.main:
+	traceroute google.com > traceroute_output.txt
+4.main & remote:
+	ip a
+	hostname -I
+5.remote:
+	sudo ufw status
+	sudo ufw disable
+6.main:
+	sudo apt update
+	sudo apt install wireshark
+7.
+remote:	
+	sudo apt install telnetd -y
+main:	
+	telnet <ip-address>
+8.main:
+	wireshark
+	uname -a
+9.remote:
+	sudo apt remove --purge telnetd -y
+10.main:
+	ssh john@<ip-address>
+	wireshark
+	uname -a
+Вывод:
+	Трафик Telnet отображается в виде открытого текста и можно видеть имя пользователя, пароль, и его команды. А при использовании трафик SSH зашифрован, видны только метаданные и можно видеть только рукопожатие и размеры пакетов. Поэтому SSH безопасен для удалённого доступа, а Telnet небезопасен.
+11.
+remote:	
+	sudo ufw enable
+	sudo ufw deny 22
+main:	
+	ssh john@<ip-address>
+12.
+main:
+	sudo apt install nmap -y
+	nmap -A <john ip address> > nmap_oupput.txt
+remote:
+	sudo ss -tuln > ss_output.txt
+Вывод:
+nmap показывает, какие порты открыты извне, и ss -tuln показывает, какие службы прослушивают трафик локально. Поэтому если межсетевый экран (firewall) включён, некоторые открытые порты могут быть скрыты от nmap.
