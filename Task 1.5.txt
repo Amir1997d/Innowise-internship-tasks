@@ -1,0 +1,137 @@
+1.
+sudo bash -c 'cat > /usr/local/bin/log_uptime_task1.sh << "EOF"
+#!/bin/bash
+while true; do
+    uptime >> /var/log/uptime.log
+    sleep 15
+done
+EOF'
+sudo chmod +x /usr/local/bin/log_uptime_task1.sh
+
+# === comment ===
+
+sudo bash -c 'cat > /etc/systemd/system/uptime-logger-task1.service << "EOF"
+[Unit]
+Description=Uptime Logger Task 1
+
+[Service]
+ExecStart=/usr/local/bin/log_uptime_task1.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now uptime-logger-task1.service
+sudo systemctl status --no-pager uptime-logger-task1.service
+
+2.
+sudo bash -c 'cat > /usr/local/bin/log_uptime_task2.sh << "EOF"
+#!/bin/bash
+while true; do
+    load=$(awk "{print \$1}" /proc/loadavg)
+    if (( $(echo "$load > 1.0" | bc -l) )); then
+        uptime >> /var/log/overload.log
+    else
+        uptime >> /var/log/uptime.log
+    fi
+    sleep 15
+done
+EOF'
+sudo chmod +x /usr/local/bin/log_uptime_task2.sh
+
+# === comment ===
+
+sudo bash -c 'cat > /etc/systemd/system/uptime-logger-task2.service << "EOF"
+[Unit]
+Description=Uptime Logger Task 2
+
+[Service]
+ExecStart=/usr/local/bin/log_uptime_task2.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now uptime-logger-task2.service
+sudo systemctl status --no-pager uptime-logger-task2.service
+
+3.
+sudo apt update
+sudo apt install -y stress
+
+# === comment ===
+
+nproc
+
+# === comment ===
+
+stress --cpu $(nproc) --timeout 50s
+
+# === comment ===
+
+sudo tail -f /var/log/overload.log
+
+4.
+sudo bash -c 'cat > /usr/local/bin/log_uptime_task4.sh << "EOF"
+#!/bin/bash
+# Ensure log files exist
+touch /var/log/uptime.log /var/log/overload.log /var/log/cleanup.log
+
+while true; do
+    load=$(awk "{print \$1}" /proc/loadavg)
+    if (( $(echo "$load > 1.0" | bc -l) )); then
+        uptime >> /var/log/overload.log
+        # Clear overload.log if size >= 50KB
+        if [ $(stat -c%s /var/log/overload.log) -ge 51200 ]; then
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - overload.log cleared" >> /var/log/cleanup.log
+            : > /var/log/overload.log
+        fi
+    else
+        uptime >> /var/log/uptime.log
+    fi
+    sleep 15
+done
+EOF'
+sudo chmod +x /usr/local/bin/log_uptime_task4.sh
+
+# === comment ===
+
+sudo bash -c 'cat > /etc/systemd/system/uptime-logger-task4.service << "EOF"
+[Unit]
+Description=Uptime Logger Task 4
+
+[Service]
+ExecStart=/usr/local/bin/log_uptime_task4.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now uptime-logger-task4.service
+sudo systemctl status --no-pager uptime-logger-task4.service
+
+5.
+# Append cron line for checking the Task 4 service status every 10 minutes
+( crontab -l 2>/dev/null; echo "*/10 * * * * systemctl is-active uptime-logger-task4.service >> /var/log/service_status.log" ) | crontab -
+
+# === comment ===
+
+crontab -l
+
+6.
+ping 1.1.1.1 > /dev/null &
+jobs -l
+fg %1
+pkill ping
+pgrep -x ping || echo "ping is not running"
+
+
