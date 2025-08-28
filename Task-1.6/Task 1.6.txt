@@ -1,0 +1,64 @@
+1.
+	mkdir -p ~/test
+	echo "hello from test_123" > ~/test/test_123
+	ln -s ~/test /tmp/soft_link
+	ls -ld /tmp/soft_link
+	cp /tmp/soft_link/test_123 /tmp/test_123
+	ln /tmp/test_123 /tmp/hard_link
+	ls -li /tmp/test_123 /tmp/hard_link ~/test/test_123
+Вывод:	
+	393485 -rw-rw-r-- 1 testuser testuser 20 Aug 28 13:24 /home/testuser/test/test_123
+ 	41004 -rw-rw-r-- 2 testuser testuser 20 Aug 28 13:29 /tmp/hard_link
+	41004 -rw-rw-r-- 2 testuser testuser 20 Aug 28 13:29 /tmp/test_123
+
+2.
+	sudo parted -s /dev/vdb mklabel gpt
+	sudo parted -s /dev/vdb mkpart primary xfs 1MiB 2048MiB
+	lsblk -f /dev/vdb
+	
+	sudo mkfs.xfs -f /dev/vdb1
+	sudo mkdir -p /mnt
+	sudo mount /dev/vdb1 /mnt
+
+	echo "my data" | sudo tee /mnt/my_test_file.txt	
+	df -hT | tee ~/2gb_df.txt
+
+  	sudo umount /mnt
+  	sudo parted /dev/vdb unit MiB
+  	sudo parted -s /dev/vdb resizepart 1 3071MiB
+  	sudo partprobe /dev/vdb
+  	sudo mount /dev/vdb1 /mnt
+  	sudo xfs_growfs /mnt
+  	df -hT | tee ~/3gb_df.txt
+Вывод:
+	Команда df -hT покажет, что размер раздела увеличился 2ГБ до 3ГБ, а используемое пространство остается неизменным
+
+LVM.
+	sudo pvs
+	sudo lvs
+	sudo vgs
+	df -h
+
+	sudo pvcreate /dev/vdc
+	sudo vgcreate myvg /dev/vdc
+
+	sudo lvcreate -n lv1 -l 50%VG myvg
+	sudo lvcreate -n lv2 -l 100%FREE myvg
+
+	sudo mkfs.xfs -f /dev/myvg/lv1
+	sudo mkfs.xfs -f /dev/myvg/lv2
+	sudo mkdir -p /mnt/lv1 /mnt/lv2
+
+	sudo mount /dev/myvg/lv1 /mnt/lv1
+	sudo mount /dev/myvg/lv2 /mnt/lv2
+ 
+	sudo pvcreate /dev/vdd
+	sudo vgextend myvg /dev/vdd
+
+	sudo lvextend -l +100%FREE /dev/myvg/lv1
+	sudo xfs_growfs /mnt/lv1
+	
+	sudo pvs
+	sudo lvs
+	sudo vgs
+	df -h
